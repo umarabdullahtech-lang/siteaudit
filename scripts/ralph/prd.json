@@ -1,0 +1,161 @@
+{
+  "projectName": "SiteAudit - AI-Powered Website Auditor",
+  "branchName": "ralph/siteaudit-mvp",
+  "description": "Web application that automates website analysis for SEO, performance, accessibility, and content quality using Generative AI",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Project Structure Setup",
+      "description": "Initialize monorepo with Next.js frontend and Node.js backend",
+      "acceptanceCriteria": [
+        "Monorepo structure with /frontend and /backend directories",
+        "Next.js 14+ with App Router in /frontend",
+        "Tailwind CSS configured",
+        "Node.js/Express backend in /backend",
+        "TypeScript in both",
+        "ESLint + Prettier configured",
+        "README.md with setup instructions"
+      ],
+      "priority": 1,
+      "passes": false
+    },
+    {
+      "id": "US-002",
+      "title": "Database Schema Design",
+      "description": "Design and create PostgreSQL schema for users and projects, MongoDB schema for crawl data",
+      "acceptanceCriteria": [
+        "PostgreSQL schema: users, projects, audits tables",
+        "Prisma ORM configured for PostgreSQL",
+        "MongoDB schema: crawl_results, page_data collections",
+        "Mongoose configured for MongoDB",
+        "Database connection utilities",
+        "Migration scripts"
+      ],
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "US-003",
+      "title": "Authentication System",
+      "description": "Implement user signup/login with Email and OAuth (Google/GitHub)",
+      "acceptanceCriteria": [
+        "NextAuth.js integration",
+        "Email/password signup and login",
+        "Google OAuth provider",
+        "GitHub OAuth provider",
+        "Protected routes middleware",
+        "User profile page"
+      ],
+      "priority": 3,
+      "passes": false
+    },
+    {
+      "id": "US-004",
+      "title": "Crawler Engine",
+      "description": "Build headless browser crawler with Puppeteer for JavaScript-heavy sites",
+      "acceptanceCriteria": [
+        "Puppeteer-based crawler service",
+        "Configurable crawl depth and page limits",
+        "robots.txt parser and compliance",
+        "Sitemap.xml parser",
+        "Link extraction and following",
+        "Page metadata extraction (title, meta, headings)",
+        "Error handling for failed pages"
+      ],
+      "priority": 4,
+      "passes": false
+    },
+    {
+      "id": "US-005",
+      "title": "Job Queue System",
+      "description": "Implement BullMQ with Redis for managing long-running crawl jobs",
+      "acceptanceCriteria": [
+        "Redis connection setup",
+        "BullMQ queue for crawl jobs",
+        "Job progress tracking",
+        "Job completion/failure handlers",
+        "WebSocket integration for real-time updates",
+        "Queue dashboard (optional)"
+      ],
+      "priority": 5,
+      "passes": false
+    },
+    {
+      "id": "US-006",
+      "title": "Static Analysis Module",
+      "description": "Implement technical SEO checks on crawled pages",
+      "acceptanceCriteria": [
+        "Check for missing/duplicate H1 tags",
+        "Check for missing alt tags on images",
+        "Check for missing/bad meta descriptions",
+        "Check for missing schema markup",
+        "Check for broken links (404s)",
+        "Check for redirect chains",
+        "Generate issues list with severity levels"
+      ],
+      "priority": 6,
+      "passes": false
+    },
+    {
+      "id": "US-007",
+      "title": "Lighthouse Integration",
+      "description": "Integrate Google Lighthouse for performance metrics",
+      "acceptanceCriteria": [
+        "Lighthouse API or CLI integration",
+        "Extract Core Web Vitals (LCP, CLS, FID/INP)",
+        "Performance score calculation",
+        "Accessibility score extraction",
+        "Store metrics per page"
+      ],
+      "priority": 7,
+      "passes": false
+    },
+    {
+      "id": "US-008",
+      "title": "AI Content Analysis",
+      "description": "Integrate OpenAI/Anthropic for content quality analysis",
+      "acceptanceCriteria": [
+        "OpenAI or Anthropic API integration",
+        "Content quality assessment prompts",
+        "Keyword density analysis",
+        "Readability scoring",
+        "Duplicate content detection",
+        "AI-generated improvement suggestions"
+      ],
+      "priority": 8,
+      "passes": false
+    },
+    {
+      "id": "US-009",
+      "title": "Audit Dashboard UI",
+      "description": "Build the main dashboard with URL input and audit overview",
+      "acceptanceCriteria": [
+        "URL input form with validation",
+        "Start audit button with loading state",
+        "Real-time progress bar (WebSocket)",
+        "Health Score card",
+        "Critical Errors / Warnings / Notices cards",
+        "Recent audits list",
+        "Responsive design"
+      ],
+      "priority": 9,
+      "passes": false
+    },
+    {
+      "id": "US-010",
+      "title": "Report Pages",
+      "description": "Build detailed report views for Technical, Content, and Performance",
+      "acceptanceCriteria": [
+        "Technical View: status codes, broken links, redirects",
+        "Content View: AI analysis, keyword density, readability",
+        "Performance View: Core Web Vitals, Lighthouse scores",
+        "Page-by-page breakdown",
+        "Issue filtering and sorting",
+        "Export to PDF button",
+        "Export to CSV button"
+      ],
+      "priority": 10,
+      "passes": false
+    }
+  ]
+}
