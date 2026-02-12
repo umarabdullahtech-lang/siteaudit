@@ -45,7 +45,7 @@ export default function Home() {
           AI-Powered <span className="text-primary-600">Website Audits</span>
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Get comprehensive insights into your website's SEO, performance, and content quality
+          Get comprehensive insights into your website&apos;s SEO, performance, and content quality
           with advanced AI analysis.
         </p>
         <Link

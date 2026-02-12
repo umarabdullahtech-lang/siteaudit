@@ -134,7 +134,7 @@ export default function ReportPage({ params }: { params: { auditId: string } }) 
             <h2 className="text-lg font-semibold">AI Insights</h2>
           </div>
           <p className="text-purple-100 mb-4">
-            Based on our analysis, here are the top priorities for improving your site's SEO:
+            Based on our analysis, here are the top priorities for improving your site&apos;s SEO:
           </p>
           <ul className="space-y-2">
             <li className="flex items-start gap-2">
@@ -250,7 +250,7 @@ function ContentTab() {
               <span className="text-yellow-600">Score: 68</span>
             </div>
             <p className="text-sm text-gray-500">
-              Consider updating this content - it's 18 months old and keyword density is low.
+              Consider updating this content - it&apos;s 18 months old and keyword density is low.
             </p>
           </div>
         </div>

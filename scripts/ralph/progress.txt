@@ -2,6 +2,33 @@
 Started: Thu Feb 12 16:26:43 PKT 2026
 
 ## Codebase Patterns
-(Will be populated as patterns are discovered)
+- Monorepo: `apps/web` (Next.js), `apps/api` (NestJS), `packages/shared` (types)
+- Package manager: pnpm with workspaces; use `pnpm --filter <name>` for per-package commands
+- Shared types package is `@shared/types` (workspace:*); referenced by both apps
+- Frontend uses CSS variables (shadcn-style) mapped in tailwind.config.ts — `border-border`, `bg-background`, etc.
+- Backend uses NestJS modular architecture with Prisma for PostgreSQL
+- `robotstxt-parser` npm package doesn't exist; robotstxt service has its own parser using `fetch`
+- ESLint: frontend uses `eslint-config-next`, backend uses `@typescript-eslint`; shared uses `tsc --noEmit` for lint
+- Turbo runs `build`, `lint`, `dev` across all workspace packages
 
+---
+
+## 2026-02-12 - US-001
+- Verified and fixed project structure setup for monorepo
+- Removed non-existent `robotstxt-parser` dependency
+- Added missing backend deps: `@nestjs/config`, `chrome-launcher`, `socket.io`
+- Added `@typescript-eslint/eslint-plugin` + `@typescript-eslint/parser` to API devDeps
+- Fixed NextAuth session type augmentation (created `types/next-auth.d.ts`)
+- Fixed Tailwind CSS config to map CSS variables (border, background, foreground, etc.)
+- Fixed unescaped entities in JSX (`'` → `&apos;`)
+- Created ESLint configs for both apps (`.eslintrc.json`)
+- Created root `.prettierrc` and added `prettier` to root devDeps
+- Changed shared package lint script from `eslint src/` to `tsc --noEmit`
+- All quality checks pass: typecheck, lint, build (3/3 turbo tasks)
+- Files changed: `apps/api/package.json`, `apps/web/src/types/next-auth.d.ts` (new), `apps/web/tailwind.config.ts`, `apps/web/src/app/page.tsx`, `apps/web/src/app/reports/[auditId]/page.tsx`, `apps/web/.eslintrc.json` (new), `apps/api/.eslintrc.json` (new), `.prettierrc` (new), `package.json`, `packages/shared/package.json`
+- **Learnings for future iterations:**
+  - Always run `pnpm install` first to catch missing/non-existent packages
+  - Check CSS variables in globals.css are mapped in tailwind.config.ts
+  - NextAuth session types need augmentation via `declare module 'next-auth'` for custom fields
+  - Backend NestJS uses `nest build` (not `tsc` directly) — works seamlessly
 ---
