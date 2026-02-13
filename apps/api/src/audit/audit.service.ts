@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueueService } from '../queue/queue.service';
 import { CreateAuditDto } from './dto/create-audit.dto';
@@ -56,6 +56,25 @@ export class AuditService {
         project: true,
       },
     });
+  }
+
+  async getAuditForUser(auditId: string, userId: string) {
+    const audit = await this.prisma.audit.findUnique({
+      where: { id: auditId },
+      include: {
+        project: true,
+      },
+    });
+
+    if (!audit) {
+      throw new NotFoundException('Audit not found');
+    }
+
+    if (audit.project.userId !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    return audit;
   }
 
   async getUserAudits(userId: string) {

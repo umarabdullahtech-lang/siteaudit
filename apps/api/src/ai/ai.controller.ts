@@ -1,14 +1,20 @@
 import { Controller, Post, Body, UseGuards, HttpCode } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { IsArray, IsString, IsOptional } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AiService } from './ai.service';
 
 class AnalyzeContentDto {
-  crawlResults: any[];
+  @IsArray()
+  @IsOptional()
+  crawlResults: any[] = [];
 }
 
 class GenerateFixDto {
+  @IsString()
   issue: string;
+
+  @IsString()
   htmlContext: string;
 }
 

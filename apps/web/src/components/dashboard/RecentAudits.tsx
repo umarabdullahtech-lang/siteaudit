@@ -53,9 +53,9 @@ export function RecentAudits({ audits, loading }: RecentAuditsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold mb-4">Recent Audits</h2>
-        <div className="flex items-center justify-center py-12 text-gray-400">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Audits</h2>
+        <div className="flex items-center justify-center py-12 text-gray-400 dark:text-gray-500">
           <Loader2 className="w-6 h-6 animate-spin mr-2" />
           Loading audits...
         </div>
@@ -65,8 +65,8 @@ export function RecentAudits({ audits, loading }: RecentAuditsProps) {
 
   if (!audits.length) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold mb-4">Recent Audits</h2>
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Audits</h2>
         <div className="text-center py-12 text-gray-400">
           <p className="text-lg mb-2">No audits yet</p>
           <p className="text-sm">Start your first audit by entering a URL above</p>
@@ -76,12 +76,12 @@ export function RecentAudits({ audits, loading }: RecentAuditsProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-lg font-semibold mb-4">Recent Audits</h2>
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Audits</h2>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="text-left text-sm text-gray-500 border-b border-gray-100">
+            <tr className="text-left text-sm text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
               <th className="pb-3 font-medium">Website</th>
               <th className="pb-3 font-medium">Status</th>
               <th className="pb-3 font-medium">Score</th>

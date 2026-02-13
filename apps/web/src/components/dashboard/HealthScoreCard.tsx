@@ -21,9 +21,9 @@ export function HealthScoreCard({ score, trend }: HealthScoreCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-500">Health Score</h3>
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Health Score</h3>
         <div className={`w-10 h-10 rounded-lg ${getScoreBg(score)} flex items-center justify-center`}>
           <Activity className={`w-5 h-5 ${getScoreColor(score)}`} />
         </div>

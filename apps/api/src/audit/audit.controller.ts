@@ -28,7 +28,7 @@ export class AuditController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a specific audit by ID' })
   @ApiParam({ name: 'id', description: 'Audit ID' })
-  async getAudit(@Param('id') id: string) {
-    return this.auditService.getAudit(id);
+  async getAudit(@Request() req: any, @Param('id') id: string) {
+    return this.auditService.getAuditForUser(id, req.user.userId);
   }
 }
