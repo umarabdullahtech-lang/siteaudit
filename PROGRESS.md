@@ -60,7 +60,7 @@
 
 ---
 
-## Phase 2: Core Functionality (Feb 13, 2026)
+## Phase 2: Core Functionality (Feb 13, 2026) ✅
 
 ### Frontend ✅
 - [x] API client library (`lib/api.ts`) with Axios, interceptors, error handling
@@ -90,31 +90,85 @@
 - [x] `next build` passes with zero errors
 - [x] `nest build` passes with zero errors
 
-### Remaining (Phase 2)
-- [ ] PDF export with jsPDF
-- [ ] CSV export with PapaParse
-- [ ] MongoDB schemas for crawl results
-- [ ] Crawl result caching
-- [ ] Rate limiting
-- [ ] Unit tests
-- [ ] E2E tests
-- [ ] User settings page
+---
+
+## Phase 3: AI, Exports & Polish (Feb 13, 2026) ✅
+
+### Export Features ✅
+- [x] **PDF export** with jsPDF (`lib/export-pdf.ts`)
+  - Full audit report: title page, health score, AI insights, Lighthouse, issues, pages
+  - Color-coded scores (green/yellow/red)
+  - Auto page breaks, footer with page numbers
+  - Downloaded as `siteaudit-{id}.pdf`
+- [x] **CSV export** with PapaParse (`lib/export-csv.ts`)
+  - Page-level CSV: URL, status, meta tags, headings, images, links, issues
+  - Issues-only CSV export (`exportIssuesCsv`)
+  - Proper quoting and headers
+  - Downloaded as `siteaudit-{id}.csv`
+
+### AI Features ✅
+- [x] **Content quality scoring** (`AiService.scoreContentQuality`)
+  - Overall, readability, SEO optimization, technical health, content depth scores (0-100)
+  - AI-powered with Claude/GPT fallback to rule-based scoring
+- [x] **SEO keyword suggestions** (`AiService.suggestKeywords`)
+  - 5-8 keyword suggestions with relevance and usage counts
+  - AI-powered with fallback to word frequency analysis
+- [x] **HTML fix code generation** (`AiService.generateCodeFix`)
+  - Takes issue + HTML context, returns fixed HTML + explanation
+- [x] **AI REST endpoints** (`AiController`)
+  - `POST /ai/analyze` — get AI insights for crawl results
+  - `POST /ai/content-score` — get content quality scores
+  - `POST /ai/keywords` — get SEO keyword suggestions
+  - `POST /ai/generate-fix` — generate HTML fix for an issue
+
+### UX Improvements ✅
+- [x] **Dark mode** toggle (light / dark / system)
+  - Zustand theme store (`store/theme.ts`) with localStorage persistence
+  - System preference detection + auto-switch
+  - ThemeToggle component with Sun/Moon/Monitor icons
+  - CSS variables for dark theme already defined in globals.css
+  - ThemeInitializer in root layout
+  - Dark mode classes on dashboard, report page, all sub-components
+- [x] **Mobile responsiveness** improvements
+  - Responsive headers with flex-wrap
+  - Grid layouts collapse on small screens (grid-cols-1 sm:grid-cols-3)
+  - Overflow-x-auto on tab navigation
+  - Truncated URLs and text on mobile
+  - Touch-friendly button sizes
+
+### Infrastructure ✅
+- [x] **MongoDB schemas** for crawl results (`mongo/schemas/`)
+  - `CrawlResult` schema: full page analysis data, compound indexes
+  - `AuditCache` schema: cached AI insights, scores, TTL expiry
+  - `CrawlResultsRepository` with save, bulk save, query, delete operations
+- [x] **Rate limiting** via `@nestjs/throttler`
+  - Global: 10 req/sec, 100 req/min, 1000 req/hour
+  - Audit creation: 5 per minute (stricter)
+
+### Testing ✅
+- [x] **Unit tests** for critical paths (17 tests, all passing)
+  - `AiService` tests: content analysis, quality scoring, keywords, code fix (4 tests)
+  - `AuditService` tests: create, get, list, update status (6 tests)
+  - `AuthService` tests: validate, login, register, error cases (7 tests)
+  - Jest configuration with ts-jest
+
+### Build Verification ✅
+- [x] `next build` passes (zero errors)
+- [x] `nest build` passes (zero errors)
+- [x] `jest` — 17/17 tests passing
 
 ---
 
-## Phase 3: AI & Polish (Planned)
+## Remaining Items (Future)
 
-### AI Features
-- [ ] Content quality scoring
-- [ ] SEO keyword suggestions
-- [ ] HTML fix code generation
-- [ ] Competitor analysis
-
-### UX Improvements
-- [ ] Dark mode
-- [ ] Mobile responsiveness
+### Nice-to-Haves
 - [ ] Onboarding tour
-- [ ] Email notifications
+- [ ] Email notifications for audit completion
+- [ ] Competitor analysis (compare two sites)
+- [ ] User settings page
+- [ ] E2E tests (Playwright)
+- [ ] Crawl result caching (wire AuditCache into crawl pipeline)
+- [ ] AI insights displayed in report Content tab
 
 ---
 
@@ -126,3 +180,6 @@
 - PostgreSQL for relational data, MongoDB for unstructured crawl logs
 - Phase 2 switched from NextAuth sessions to direct JWT auth for simplicity
 - Auth flow: sign up/in → API returns JWT → stored in localStorage → sent via Bearer header
+- Dark mode uses Tailwind `class` strategy with CSS variables (already had :root/.dark vars)
+- Rate limiting uses multi-tier approach (short/medium/long windows)
+- AI service gracefully falls back to rule-based analysis when no API keys configured
