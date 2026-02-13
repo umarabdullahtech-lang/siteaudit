@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuditService } from './audit.service';
 import { CreateAuditDto } from './dto/create-audit.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -12,6 +13,7 @@ export class AuditController {
   constructor(private auditService: AuditService) {}
 
   @Post()
+  @Throttle({ short: { ttl: 60000, limit: 5 } }) // max 5 audits per minute
   @ApiOperation({ summary: 'Start a new site audit' })
   async createAudit(@Request() req: any, @Body() dto: CreateAuditDto) {
     return this.auditService.createAudit(req.user.userId, dto);

@@ -10,6 +10,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { HealthScoreCard } from '@/components/dashboard/HealthScoreCard'
 import { CriticalErrorsCard } from '@/components/dashboard/CriticalErrorsCard'
 import { WarningsCard } from '@/components/dashboard/WarningsCard'
@@ -101,18 +102,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <Link href="/dashboard" className="text-2xl font-bold text-primary-600">
             SiteAudit
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user?.email}</span>
+            <ThemeToggle />
+            <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">{user?.email}</span>
             <button
               onClick={handleLogout}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               title="Sign out"
             >
               <LogOut className="w-5 h-5" />
@@ -121,10 +123,10 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8">
         {/* URL Input */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h2 className="text-lg font-semibold mb-4">Start New Audit</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Start New Audit</h2>
           <form onSubmit={handleStartAudit} className="flex gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -133,7 +135,7 @@ export default function Dashboard() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Enter website URL (e.g., https://example.com)"
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400"
                 disabled={isStarting || !!activeCrawl}
                 required
               />

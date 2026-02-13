@@ -18,6 +18,9 @@ import {
 } from 'lucide-react'
 import { useAuditStore } from '@/store/audit'
 import { useAuthStore } from '@/store/auth'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { exportAuditPdf } from '@/lib/export-pdf'
+import { exportAuditCsv } from '@/lib/export-csv'
 import type { AuditResults, PageAnalysis, Issue, AiInsight, LighthouseResult } from '@shared/types'
 
 type TabType = 'technical' | 'content' | 'performance'
@@ -46,22 +49,31 @@ export default function ReportPage() {
   ] as const
 
   const handleExportPDF = () => {
-    // TODO: Implement with jsPDF
-    alert('PDF export coming soon!')
+    if (!currentAudit?.results) return
+    exportAuditPdf({
+      siteUrl: project?.url || 'Unknown',
+      auditId: currentAudit.id,
+      createdAt: String(currentAudit.createdAt),
+      results: currentAudit.results as AuditResults,
+    })
   }
 
   const handleExportCSV = () => {
-    // TODO: Implement with PapaParse
-    alert('CSV export coming soon!')
+    if (!currentAudit?.results) return
+    exportAuditCsv({
+      siteUrl: project?.url || 'Unknown',
+      auditId: currentAudit.id,
+      results: currentAudit.results as AuditResults,
+    })
   }
 
   // Loading state
   if (currentLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
-          <p className="text-gray-500">Loading audit report...</p>
+          <p className="text-gray-500 dark:text-gray-400">Loading audit report...</p>
         </div>
       </div>
     )
@@ -70,11 +82,11 @@ export default function ReportPage() {
   // Error state
   if (currentError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center max-w-md">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load report</h2>
-          <p className="text-gray-500 mb-4">{currentError}</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Failed to load report</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">{currentError}</p>
           <Link href="/dashboard" className="text-primary-600 hover:text-primary-700 font-medium">
             ← Back to Dashboard
           </Link>
@@ -90,19 +102,19 @@ export default function ReportPage() {
   const siteUrl = project?.url || 'Unknown site'
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-gray-500 hover:text-gray-700 transition">
+              <Link href="/dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Audit Report</h1>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <span>{siteUrl}</span>
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Audit Report</h1>
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <span className="truncate max-w-[200px] sm:max-w-none">{siteUrl}</span>
                   {project?.url && (
                     <a href={project.url} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4" />
@@ -111,16 +123,17 @@ export default function ReportPage() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <ThemeToggle />
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition"
               >
                 <Download className="w-4 h-4" /> PDF
               </button>
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition"
               >
                 <Download className="w-4 h-4" /> CSV
               </button>
@@ -129,13 +142,13 @@ export default function ReportPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8">
         {/* Status banner for non-complete audits */}
         {currentAudit.status !== 'complete' && (
           <div className={`rounded-xl p-4 mb-6 flex items-center gap-3 ${
             currentAudit.status === 'failed'
-              ? 'bg-red-50 border border-red-200 text-red-700'
-              : 'bg-blue-50 border border-blue-200 text-blue-700'
+              ? 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
+              : 'bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
           }`}>
             {currentAudit.status === 'running' && <Loader2 className="w-5 h-5 animate-spin" />}
             {currentAudit.status === 'pending' && <Loader2 className="w-5 h-5" />}
@@ -151,11 +164,11 @@ export default function ReportPage() {
         {results && (
           <>
             {/* Health Score Summary */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-              <div className="flex items-center justify-between">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Overall Health Score</h2>
-                  <p className="text-gray-500">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Overall Health Score</h2>
+                  <p className="text-gray-500 dark:text-gray-400">
                     Based on {results.pagesAnalyzed || 0} page{results.pagesAnalyzed !== 1 ? 's' : ''} analyzed
                   </p>
                 </div>
@@ -165,39 +178,39 @@ export default function ReportPage() {
                   }`}>
                     {results.score}
                   </div>
-                  <div className="text-gray-500">/100</div>
+                  <div className="text-gray-500 dark:text-gray-400">/100</div>
                 </div>
               </div>
 
               {/* Summary Stats */}
-              <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                       {results.pagesAnalyzed || 0}
                     </div>
-                    <div className="text-sm text-gray-500">Pages Analyzed</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Pages Analyzed</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
                     <AlertCircle className="w-5 h-5 text-red-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{results.errors || 0}</div>
-                    <div className="text-sm text-gray-500">Errors</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{results.errors || 0}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Errors</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
                     <AlertTriangle className="w-5 h-5 text-yellow-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{results.warnings || 0}</div>
-                    <div className="text-sm text-gray-500">Warnings</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{results.warnings || 0}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Warnings</div>
                   </div>
                 </div>
               </div>
@@ -236,17 +249,17 @@ export default function ReportPage() {
             )}
 
             {/* Tabs */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="border-b border-gray-100">
-                <div className="flex">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+              <div className="border-b border-gray-100 dark:border-gray-800 overflow-x-auto">
+                <div className="flex min-w-max">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition ${
+                      className={`flex items-center gap-2 px-4 sm:px-6 py-4 text-sm font-medium border-b-2 transition whitespace-nowrap ${
                         activeTab === tab.id
                           ? 'border-primary-600 text-primary-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                       }`}
                     >
                       <tab.icon className="w-4 h-4" />
@@ -256,7 +269,7 @@ export default function ReportPage() {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {activeTab === 'technical' && <TechnicalTab results={results} />}
                 {activeTab === 'content' && <ContentTab results={results} />}
                 {activeTab === 'performance' && <PerformanceTab results={results} />}
@@ -311,7 +324,7 @@ function TechnicalTab({ results }: { results: AuditResults }) {
       <div className="text-center py-8 text-gray-400">
         <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-400" />
         <p className="text-lg font-medium text-green-600">No technical issues found!</p>
-        <p className="text-sm">Your site looks great from a technical SEO perspective.</p>
+        <p className="text-sm dark:text-gray-400">Your site looks great from a technical SEO perspective.</p>
       </div>
     )
   }
@@ -319,16 +332,16 @@ function TechnicalTab({ results }: { results: AuditResults }) {
   return (
     <div className="space-y-4">
       {issues.map((issue, i) => (
-        <div key={i} className="flex items-start gap-4 p-4 border border-gray-100 rounded-lg">
+        <div key={i} className="flex items-start gap-4 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
           {getIcon(issue.type)}
-          <div className="flex-1">
-            <h4 className="font-medium text-gray-900">{issue.message}</h4>
-            <p className="text-sm text-gray-500">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">{issue.message}</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Found on {issue.count} page{issue.count !== 1 ? 's' : ''}
             </p>
           </div>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            issue.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+          <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
+            issue.type === 'error' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
           }`}>
             {issue.type}
           </span>
@@ -344,11 +357,11 @@ function ContentTab({ results }: { results: AuditResults }) {
   return (
     <div className="space-y-6">
       {/* Summary */}
-      <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
-        <h4 className="font-medium text-blue-900 mb-2">
+      <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800 rounded-lg">
+        <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
           Content Analysis: {pages.length} page{pages.length !== 1 ? 's' : ''} scanned
         </h4>
-        <p className="text-sm text-blue-700">
+        <p className="text-sm text-blue-700 dark:text-blue-300">
           {results.errors === 0
             ? 'Content quality looks solid. Keep it up!'
             : `Found ${results.errors} content issues that need attention.`}
@@ -358,7 +371,7 @@ function ContentTab({ results }: { results: AuditResults }) {
       {/* Per-page breakdown */}
       {pages.length > 0 && (
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Page-by-Page Analysis</h4>
+          <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Page-by-Page Analysis</h4>
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {pages.slice(0, 20).map((page, i) => {
               const meta = page.analysis?.meta
@@ -366,17 +379,17 @@ function ContentTab({ results }: { results: AuditResults }) {
               const hasDesc = !!meta?.description
 
               return (
-                <div key={i} className="p-4 border border-gray-100 rounded-lg">
+                <div key={i} className="p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
                   <div className="flex justify-between mb-2">
-                    <span className="font-medium text-gray-900 truncate max-w-sm">
+                    <span className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-sm">
                       {page.title || page.url}
                     </span>
-                    <span className={`text-sm ${page.statusCode === 200 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`text-sm flex-shrink-0 ${page.statusCode === 200 ? 'text-green-600' : 'text-red-600'}`}>
                       {page.statusCode}
                     </span>
                   </div>
                   <p className="text-xs text-gray-400 mb-2 truncate">{page.url}</p>
-                  <div className="flex gap-3 text-xs">
+                  <div className="flex flex-wrap gap-3 text-xs">
                     <span className={hasTitle ? 'text-green-600' : 'text-red-600'}>
                       {hasTitle ? '✓' : '✗'} Title
                     </span>
@@ -404,7 +417,7 @@ function PerformanceTab({ results }: { results: AuditResults }) {
 
   if (!lh) {
     return (
-      <div className="text-center py-8 text-gray-400">
+      <div className="text-center py-8 text-gray-400 dark:text-gray-500">
         <Zap className="w-12 h-12 mx-auto mb-3" />
         <p className="text-lg">No performance data available</p>
         <p className="text-sm">Lighthouse analysis was not completed for this audit.</p>
@@ -447,13 +460,13 @@ function PerformanceTab({ results }: { results: AuditResults }) {
 
       {/* Core Web Vitals */}
       <div>
-        <h4 className="font-medium text-gray-900 mb-3">Core Web Vitals</h4>
+        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Core Web Vitals</h4>
         <div className="space-y-3">
           {metrics.map((metric, i) => (
-            <div key={i} className="flex items-center gap-4 p-4 border border-gray-100 rounded-lg">
+            <div key={i} className="flex items-center gap-4 p-4 border border-gray-100 dark:border-gray-800 rounded-lg">
               <div className="flex-1">
-                <div className="font-medium text-gray-900">{metric.name}</div>
-                <div className="text-sm text-gray-500">{metric.value}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{metric.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{metric.value}</div>
               </div>
             </div>
           ))}
