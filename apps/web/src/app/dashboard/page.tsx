@@ -1,71 +1,98 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { redirect } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Search,
-  AlertTriangle,
-  AlertCircle,
-  CheckCircle2,
-  Activity,
-  Clock,
-  ExternalLink,
   Plus,
   LogOut,
-  FileText,
-  Settings,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react'
 import { HealthScoreCard } from '@/components/dashboard/HealthScoreCard'
 import { CriticalErrorsCard } from '@/components/dashboard/CriticalErrorsCard'
 import { WarningsCard } from '@/components/dashboard/WarningsCard'
 import { AuditProgress } from '@/components/dashboard/AuditProgress'
 import { RecentAudits } from '@/components/dashboard/RecentAudits'
+import { useAuthStore } from '@/store/auth'
+import { useAuditStore } from '@/store/audit'
+import { getErrorMessage } from '@/lib/api'
 
 export default function Dashboard() {
-  const { data: session, status } = useSession()
+  const router = useRouter()
+  const { user, token, loadFromStorage, fetchProfile, logout } = useAuthStore()
+  const {
+    audits,
+    auditsLoading,
+    auditsError,
+    activeCrawl,
+    fetchAudits,
+    startAudit,
+    subscribeToCrawl,
+  } = useAuditStore()
+
   const [url, setUrl] = useState('')
-  const [isAuditing, setIsAuditing] = useState(false)
-  const [auditProgress, setAuditProgress] = useState(0)
-  const [auditStatus, setAuditStatus] = useState('')
+  const [startError, setStartError] = useState<string | null>(null)
+  const [isStarting, setIsStarting] = useState(false)
+
+  // Auth check
+  useEffect(() => {
+    loadFromStorage()
+  }, [loadFromStorage])
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      redirect('/auth/signin')
+    if (token) {
+      fetchProfile()
+      fetchAudits()
+    } else {
+      // Give a moment for token to load from storage
+      const t = setTimeout(() => {
+        const stored = localStorage.getItem('accessToken')
+        if (!stored) router.push('/auth/signin')
+      }, 500)
+      return () => clearTimeout(t)
     }
-  }, [status])
+  }, [token, fetchProfile, fetchAudits, router])
 
-  const handleStartAudit = async (e: React.FormEvent) => {
+  // Subscribe to active crawl WebSocket
+  useEffect(() => {
+    if (activeCrawl) {
+      const unsub = subscribeToCrawl(activeCrawl.auditId)
+      return unsub
+    }
+  }, [activeCrawl?.auditId, subscribeToCrawl])
+
+  // Compute summary stats from most recent completed audit
+  const latestComplete = audits.find((a) => a.status === 'complete' && a.results)
+  const results = latestComplete?.results as any
+  const healthScore = results?.score ?? 0
+  const errorCount = results?.errors ?? 0
+  const warningCount = results?.warnings ?? 0
+
+  const handleStartAudit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!url) return
+    setStartError(null)
+    setIsStarting(true)
 
-    setIsAuditing(true)
-    setAuditProgress(0)
-    setAuditStatus('Initializing audit...')
-
-    // TODO: Connect to WebSocket for real-time progress
-    // Simulate progress for now
-    const steps = [
-      { progress: 10, status: 'Fetching robots.txt...' },
-      { progress: 20, status: 'Parsing sitemap...' },
-      { progress: 40, status: 'Crawling pages...' },
-      { progress: 60, status: 'Analyzing content...' },
-      { progress: 75, status: 'Running Lighthouse...' },
-      { progress: 90, status: 'AI analysis...' },
-      { progress: 100, status: 'Complete!' },
-    ]
-
-    for (const step of steps) {
-      await new Promise((r) => setTimeout(r, 1500))
-      setAuditProgress(step.progress)
-      setAuditStatus(step.status)
+    try {
+      await startAudit(url)
+      setUrl('')
+    } catch (err) {
+      setStartError(getErrorMessage(err))
+    } finally {
+      setIsStarting(false)
     }
+  }, [url, startAudit])
 
-    setIsAuditing(false)
+  const handleLogout = () => {
+    logout()
+    router.push('/auth/signin')
   }
 
-  if (status === 'loading') {
+  // Loading state
+  if (!token && typeof window !== 'undefined' && !localStorage.getItem('accessToken')) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
@@ -82,13 +109,14 @@ export default function Dashboard() {
             SiteAudit
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{session?.user?.email}</span>
-            <Link
-              href="/api/auth/signout"
+            <span className="text-sm text-gray-600">{user?.email}</span>
+            <button
+              onClick={handleLogout}
               className="text-gray-500 hover:text-gray-700"
+              title="Sign out"
             >
               <LogOut className="w-5 h-5" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -106,19 +134,19 @@ export default function Dashboard() {
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Enter website URL (e.g., https://example.com)"
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                disabled={isAuditing}
+                disabled={isStarting || !!activeCrawl}
                 required
               />
             </div>
             <button
               type="submit"
-              disabled={isAuditing || !url}
+              disabled={isStarting || !!activeCrawl || !url}
               className="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition disabled:opacity-50 flex items-center gap-2"
             >
-              {isAuditing ? (
+              {isStarting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                  Auditing...
+                  Starting...
                 </>
               ) : (
                 <>
@@ -128,21 +156,44 @@ export default function Dashboard() {
             </button>
           </form>
 
+          {/* Error */}
+          {startError && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              {startError}
+            </div>
+          )}
+
           {/* Progress Bar */}
-          {isAuditing && (
-            <AuditProgress progress={auditProgress} status={auditStatus} />
+          {activeCrawl && (
+            <AuditProgress progress={activeCrawl.progress} status={activeCrawl.status} />
           )}
         </div>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <HealthScoreCard score={87} trend="+3" />
-          <CriticalErrorsCard count={5} />
-          <WarningsCard count={23} />
+          <HealthScoreCard score={healthScore} trend={audits.length > 1 ? undefined : undefined} />
+          <CriticalErrorsCard count={errorCount} />
+          <WarningsCard count={warningCount} />
         </div>
 
         {/* Recent Audits */}
-        <RecentAudits />
+        {auditsError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+            <span className="text-red-700 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              {auditsError}
+            </span>
+            <button
+              onClick={() => fetchAudits()}
+              className="text-red-600 hover:text-red-800"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        <RecentAudits audits={audits} loading={auditsLoading} />
       </div>
     </div>
   )

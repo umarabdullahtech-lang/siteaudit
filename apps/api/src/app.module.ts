@@ -9,6 +9,7 @@ import { WebsocketModule } from './websocket/websocket.module';
 import { AiModule } from './ai/ai.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { MongoModule } from './mongo/mongo.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { MongoModule } from './mongo/mongo.module';
     QueueModule,
     WebsocketModule,
     AiModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

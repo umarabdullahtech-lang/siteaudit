@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -23,9 +24,24 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
+  // Swagger documentation
+  const config = new DocumentBuilder()
+    .setTitle('SiteAudit API')
+    .setDescription('SEO Site Audit Tool — REST API documentation')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('Auth', 'Authentication endpoints')
+    .addTag('Audits', 'Site audit CRUD and management')
+    .addTag('Health', 'Health check')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
   const port = process.env.PORT || 4000;
   await app.listen(port);
   console.log(`🚀 API Server running on http://localhost:${port}`);
+  console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

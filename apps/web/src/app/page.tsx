@@ -1,11 +1,15 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
 import { ArrowRight, CheckCircle, Zap, Shield, BarChart3 } from 'lucide-react'
 
 export default function Home() {
-  const { data: session } = useSession()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('accessToken'))
+  }, [])
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -13,7 +17,7 @@ export default function Home() {
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         <div className="text-2xl font-bold text-primary-600">SiteAudit</div>
         <div className="flex gap-4">
-          {session ? (
+          {isLoggedIn ? (
             <Link
               href="/dashboard"
               className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition"
@@ -49,7 +53,7 @@ export default function Home() {
           with advanced AI analysis.
         </p>
         <Link
-          href={session ? '/dashboard' : '/auth/signup'}
+          href={isLoggedIn ? '/dashboard' : '/auth/signup'}
           className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition"
         >
           Start Free Audit <ArrowRight className="w-5 h-5" />
@@ -95,7 +99,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-4">Ready to improve your website?</h2>
           <p className="text-primary-100 mb-8">Start your free audit in less than 30 seconds.</p>
           <Link
-            href={session ? '/dashboard' : '/auth/signup'}
+            href={isLoggedIn ? '/dashboard' : '/auth/signup'}
             className="inline-flex items-center gap-2 bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition"
           >
             <CheckCircle className="w-5 h-5" /> Start Free Audit

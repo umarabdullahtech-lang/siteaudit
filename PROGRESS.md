@@ -60,29 +60,45 @@
 
 ---
 
-## Phase 2: Core Functionality (Planned)
+## Phase 2: Core Functionality (Feb 13, 2026)
 
-### Frontend
-- [ ] Connect dashboard to real API
-- [ ] Implement WebSocket subscription for live progress
-- [ ] Report data fetching and display
+### Frontend ✅
+- [x] API client library (`lib/api.ts`) with Axios, interceptors, error handling
+- [x] WebSocket client library (`lib/socket.ts`) with Socket.IO
+- [x] Zustand auth store (`store/auth.ts`) — login, register, profile, logout
+- [x] Zustand audit store (`store/audit.ts`) — CRUD, live crawl state
+- [x] Connect dashboard to real API (fetch audits, display results)
+- [x] WebSocket subscription for live crawl progress
+- [x] Report page fetches and displays actual audit data
+- [x] Auth pages (signin/signup) wired to real backend
+- [x] Error handling and loading states throughout
+- [x] Landing page updated (no NextAuth dependency)
+
+### Backend ✅
+- [x] Health check endpoint (`/api/health`)
+- [x] Swagger API documentation (`/api/docs`)
+- [x] Swagger decorators on all DTOs and controllers
+
+### DevOps ✅
+- [x] Docker Compose setup (PostgreSQL, Redis, MongoDB, API, Web)
+- [x] Dockerfile for API (multi-stage, with Prisma migrate)
+- [x] Dockerfile for Web (multi-stage Next.js build)
+- [x] `.dockerignore`
+- [x] Environment files (`.env`, `.env.example`, `.env.local`)
+
+### Build Verification ✅
+- [x] `next build` passes with zero errors
+- [x] `nest build` passes with zero errors
+
+### Remaining (Phase 2)
 - [ ] PDF export with jsPDF
 - [ ] CSV export with PapaParse
-- [ ] Error handling and loading states
-- [ ] User settings page
-
-### Backend
 - [ ] MongoDB schemas for crawl results
 - [ ] Crawl result caching
 - [ ] Rate limiting
-- [ ] API documentation (Swagger)
 - [ ] Unit tests
 - [ ] E2E tests
-
-### DevOps
-- [ ] Docker Compose setup
-- [ ] CI/CD pipeline
-- [ ] Production deployment config
+- [ ] User settings page
 
 ---
 
@@ -108,3 +124,5 @@
 - BullMQ chosen for better TypeScript support than Bull
 - Anthropic Claude as primary AI (faster, cheaper for analysis tasks)
 - PostgreSQL for relational data, MongoDB for unstructured crawl logs
+- Phase 2 switched from NextAuth sessions to direct JWT auth for simplicity
+- Auth flow: sign up/in → API returns JWT → stored in localStorage → sent via Bearer header
